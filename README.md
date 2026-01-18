@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neon Tic Tac Toe</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+body{
+    margin:0;
+    height:100vh;
+    background: radial-gradient(circle at top, #2b1055, #000);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:white;
+}
+
+/* ---------- HOME ---------- */
+#home{
+    text-align:center;
+}
+#home h1{
+    font-size:32px;
+    margin-bottom:20px;
+    text-shadow:0 0 15px #ff00ff;
+}
+#startBtn{
+    padding:15px 40px;
+    font-size:20px;
+    border:none;
+    border-radius:30px;
+    background:linear-gradient(45deg,#ff00ff,#00ffff);
+    color:white;
+    cursor:pointer;
+    box-shadow:0 0 20px #ff00ff;
+}
+
+/* ---------- GAME ---------- */
+#game{
+    display:none;
+    flex-direction:column;
+    align-items:center;
+}
+.header{
+    margin-bottom:15px;
+    font-size:18px;
+}
+.board{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    background:#111;
+    padding:15px;
+    border-radius:20px;
+    box-shadow:0 0 30px #00ffff;
+}
+.cell{
+    width:90px;
+    height:90px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:50px;
+    cursor:pointer;
+    border-radius:15px;
+    background:#000;
+}
+
+/* X */
+.x{
+    color:#00cfff;
+    text-shadow:0 0 20px #00cfff;
+}
+/* O */
+.o{
+    color:#ff3c3c;
+    text-shadow:0 0 20px #ff3c3c;
+}
+
+#status{
+    margin-top:15px;
+    font-size:18px;
+}
+#restart{
+    margin-top:15px;
+    padding:10px 25px;
+    border:none;
+    border-radius:25px;
+    background:#ff00ff;
+    color:white;
+    font-size:16px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- HOME -->
+<div id="home">
+    <h1>Neon Tic Tac Toe</h1>
+    <button id="startBtn">Start Game</button>
+</div>
+
+<!-- GAME -->
+<div id="game">
+    <div class="header">Player (X) vs AI (O)</div>
+    <div class="board" id="board"></div>
+    <div id="status"></div>
+    <button id="restart">Restart</button>
+</div>
+
+<script>
+const home = document.getElementById("home");
+const game = document.getElementById("game");
+const board = document.getElementById("board");
+const statusText = document.getElementById("status");
+
+let cells = [];
+let gameOver = false;
+
+document.getElementById("startBtn").onclick = ()=>{
+    home.style.display="none";
+    game.style.display="flex";
+    startGame();
+};
+
+document.getElementById("restart").onclick = startGame;
+
+function startGame(){
+    board.innerHTML="";
+    cells = Array(9).fill("");
+    gameOver = false;
+    statusText.innerText="Your Turn";
+
+    for(let i=0;i<9;i++){
+        const cell=document.createElement("div");
+        cell.classList.add("cell");
+        cell.onclick=()=>playerMove(i,cell);
+        board.appendChild(cell);
+    }
+}
+
+function playerMove(i,cell){
+    if(cells[i] || gameOver) return;
+    cells[i]="X";
+    cell.innerText="X";
+    cell.classList.add("x");
+
+    if(checkWin("X")){
+        statusText.innerText="You Win!";
+        gameOver=true;
+        return;
+    }
+
+    if(cells.every(c=>c)){
+        statusText.innerText="Draw!";
+        return;
+    }
+
+    statusText.innerText="AI Thinking...";
+    setTimeout(aiMove,500);
+}
+
+function aiMove(){
+    let empty = cells.map((v,i)=>v==""?i:null).filter(v=>v!=null);
+    let move = empty[Math.floor(Math.random()*empty.length)];
+    cells[move]="O";
+    const cell = board.children[move];
+    cell.innerText="O";
+    cell.classList.add("o");
+
+    if(checkWin("O")){
+        statusText.innerText="AI Wins!";
+        gameOver=true;
+        return;
+    }
+
+    if(cells.every(c=>c)){
+        statusText.innerText="Draw!";
+        return;
+    }
+
+    statusText.innerText="Your Turn";
+}
+
+function checkWin(p){
+    const wins=[
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+    ];
+    return wins.some(w=>w.every(i=>cells[i]==p));
+}
+</script>
+
+</body>
+</html>
